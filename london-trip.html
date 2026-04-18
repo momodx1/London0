@@ -1604,6 +1604,7 @@
 <script>
   // ===== EDIT MODE =====
   let editMode = false;
+  const STORAGE_VERSION = 'london_v4'; // bump this to clear old saves
 
   function toggleEdit() {
     editMode = !editMode;
@@ -1633,7 +1634,7 @@
       saved['el_' + i] = el.innerHTML;
     });
     try {
-      localStorage.setItem('london_trip_edits', JSON.stringify(saved));
+      localStorage.setItem(STORAGE_VERSION, JSON.stringify(saved));
       showToast('✅ تم حفظ التعديلات!');
     } catch(e) {
       showToast('⚠️ تعذّر الحفظ في هذا المتصفح');
@@ -1641,8 +1642,12 @@
   }
 
   function loadEdits() {
+    // Clear ALL old versions to prevent stale content
+    ['london_trip_edits','london_v1','london_v2','london_v3'].forEach(k => {
+      try { localStorage.removeItem(k); } catch(e) {}
+    });
     try {
-      const saved = JSON.parse(localStorage.getItem('london_trip_edits'));
+      const saved = JSON.parse(localStorage.getItem(STORAGE_VERSION));
       if (!saved) return;
       const editables = document.querySelectorAll('[contenteditable]');
       editables.forEach((el, i) => {
